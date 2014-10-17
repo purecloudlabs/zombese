@@ -1,4 +1,4 @@
 zombese
 =======
 
-A WebRTC extension for Zombie.
+A WebRTC extension for Zombie.js.
