@@ -1,0 +1,43 @@
+{
+  "name": "zombese",
+  "version": "0.0.2",
+  "description": "WebRTC browser extension for Zombie.js.",
+  "main": "lib/zombese",
+  "scripts": {
+    "test": "gulp"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/inetCatapult/zombese.git"
+  },
+  "keywords": [
+    "zombie",
+    "test",
+    "testing",
+    "webrtc"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/inetCatapult/zombese/issues"
+  },
+  "homepage": "https://github.com/inetCatapult/zombese",
+  "devDependencies": {
+    "chai": "^1.9.2",
+    "gulp": "^3.8.6",
+    "gulp-istanbul": "^0.3.1",
+    "gulp-istanbul-enforcer": "^1.0.3",
+    "gulp-jscs": "^1.2.0",
+    "gulp-jshint": "^1.8.0",
+    "gulp-mocha": "^1.1.1",
+    "jshint-stylish": "^0.4.0",
+    "sinon": "^1.10.3",
+    "zombie": "^2.0.8"
+  },
+  "dependencies": {
+    "lodash": "^2.4.1",
+    "q": "^1.0.1"
+  },
+  "peerDependencies": {
+    "zombie": "^2.0.8"
+  }
+}
