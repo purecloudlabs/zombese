@@ -1,6 +1,6 @@
 {
   "name": "zombese",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "WebRTC browser extension for Zombie.js.",
   "main": "lib/zombese",
   "scripts": {
