@@ -8,8 +8,16 @@ var sinon     = require("sinon");
 var FirefoxZombeseDialect = require("../lib/webrtc/dialects/FirefoxZombeseDialect");
 
 describe("zombese", function () {
-	it("has a firefox dialect", function () {
-		expect(zombese.dialects).to.have.property("firefox");
+	describe("dialects", function () {
+		it("has a default dialect that is set to FirefoxZombeseDialect", function () {
+			expect(zombese.dialects).to.have.property("default");
+			expect(zombese.dialects.default).to.equal(FirefoxZombeseDialect);
+		});
+
+		it("has a firefox dialect", function () {
+			expect(zombese.dialects).to.have.property("firefox");
+			expect(zombese.dialects.firefox).to.equal(FirefoxZombeseDialect);
+		});
 	});
 
 	describe("specifying the dialect to use", function () {
@@ -41,7 +49,7 @@ describe("zombese", function () {
 		var teach;
 
 		before(function () {
-			teach = sinon.stub(FirefoxZombeseDialect.prototype, "teach");
+			teach = sinon.stub(zombese.dialects.default.prototype, "teach");
 			Browser.extend(zombese());
 			browser = new Browser();
 			window = browser.open({ name : "foo" });
