@@ -45,22 +45,31 @@ describe("zombese", function () {
 
 	describe("not specifying the dialect to use", function () {
 		var browser;
+		var Default;
 		var window;
 		var teach;
 
 		before(function () {
-			teach = sinon.stub(zombese.dialects.Default.prototype, "teach");
+			var dialect = new zombese.dialects.Default();
+
+			teach = sinon.stub(dialect, "teach");
+
+			Default = sinon.stub(zombese.dialects, "Default");
+			Default.returns(dialect);
+
 			Browser.extend(zombese());
 			browser = new Browser();
 			window = browser.open({ name : "foo" });
 		});
 
 		after(function () {
+			Default.restore();
 			teach.restore();
 			utilities.removeExtensions();
 		});
 
 		it("teaches the new window the default dialect", function () {
+			expect(Default.calledOnce).to.be.true;
 			expect(teach.calledOnce).to.be.true;
 		});
 	});
