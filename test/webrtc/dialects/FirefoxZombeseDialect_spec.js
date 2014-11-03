@@ -6,7 +6,7 @@ var FirefoxZombeseDialect       = require("../../../lib/webrtc/dialects/FirefoxZ
 var ZombieRTCPeerConnection     = require("../../../lib/webrtc/ZombieRTCPeerConnection");
 var ZombieRTCIceCandidate       = require("../../../lib/webrtc/ZombieRTCIceCandidate");
 var ZombieRTCSessionDescription = require("../../../lib/webrtc/ZombieRTCSessionDescription");
-var ZombieMediaStream           = require("../../../lib/webrtc/ZombieMediaStream");
+var ZombieMediaStream           = require("../../../lib/webrtc/streams/ZombieMediaStream");
 
 describe("A FirefoxZombeseDialect", function () {
 	var dialect;

@@ -17,11 +17,11 @@ describe("A ZombeseDialect", function () {
 			dialect.teach(window);
 		});
 
-		it("creates URL.createObjectURL", function () {
+		it("mocks the URL API", function () {
 			expect(window.URL.createObjectURL).to.be.a("function");
 		});
 
-		describe("URL.createObjectURL", function () {
+		describe("creating an object URL", function () {
 			var blob;
 
 			before(function () {
