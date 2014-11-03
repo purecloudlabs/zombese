@@ -19,78 +19,94 @@ describe("A ZombieRTCPeerConnection", function () {
 	});
 
 	describe("changing states", function () {
-		describe("without an oniceconnectionstatechange handler", function () {
-			before(function () {
+		describe("without a handler", function () {
+			before(function (done) {
 				connection.iceConnectionState = "connected";
+				// Give async handlers a chance to run.
+				process.nextTick(done);
 			});
 
 			after(function () {
 				connection.iceConnectionState = "new";
 			});
 
-			it("changes state without blowing up", function () {
+			it("changes state", function () {
 				expect(connection.iceConnectionState).to.equal("connected");
 			});
 		});
 
-		describe("with an oniceconnectionstatechange handler", function () {
-			var oniceconnectionstatechange;
-
-			before(function () {
-				oniceconnectionstatechange = sinon.spy();
-				connection.oniceconnectionstatechange = oniceconnectionstatechange;
-			});
-
-			after(function () {
-				delete connection.oniceconnectionstatechange;
-			});
-
+		describe("with a handler", function () {
 			describe("to the same state", function () {
-				before(function () {
-					connection.iceConnectionState = "new";
+				var handler;
+
+				before(function (done) {
+					connection.oniceconnectionstatechange = handler = sinon.spy();
+					connection.iceConnectionState         = "new";
+					// Give async handlers a chance to run.
+					process.nextTick(done);
 				});
 
 				after(function () {
-					oniceconnectionstatechange.reset();
+					connection.oniceconnectionstatechange = null;
 				});
 
-				it("doesn't invoke the oniceconnectionstatechange handler", function () {
-					expect(oniceconnectionstatechange.called).to.be.false;
+				it("doesn't invoke the handler", function () {
+					expect(handler.called).to.be.false;
 				});
 			});
 
 			describe("to a new state", function () {
-				before(function () {
-					connection.iceConnectionState = "connected";
+				var handler;
+
+				before(function (done) {
+					connection.oniceconnectionstatechange = handler = sinon.spy();
+					connection.iceConnectionState         = "connected";
+					// Give async handlers a chance to run.
+					process.nextTick(done);
 				});
 
 				after(function () {
-					connection.iceConnectionState = "new";
-					oniceconnectionstatechange.reset();
+					connection.iceConnectionState         = "new";
+					connection.oniceconnectionstatechange = null;
 				});
 
-				it("invokes the oniceconnectionstatechange handler", function () {
-					expect(oniceconnectionstatechange.calledOnce).to.be.true;
+				it("invokes the handler", function () {
+					expect(handler.calledOnce).to.be.true;
 				});
 			});
 		});
 
 		describe("to an invalid state", function () {
 			var state = "super-invalid-state";
-			var error;
 
-			before(function () {
+			var error;
+			var handler;
+
+			before(function (done) {
+				connection.oniceconnectionstatechange = handler = sinon.spy();
+
 				try {
 					connection.iceConnectionState = state;
 				}
 				catch (e) {
 					error = e;
 				}
+
+				// Give async handlers a chance to process.
+				process.nextTick(done);
+			});
+
+			after(function () {
+				connection.oniceconnectionstatechange = null;
 			});
 
 			it("throws an error", function () {
 				expect(error).to.be.an.instanceof(Error);
 				expect(error.message).to.equal("Invalid connection state: '" + state + "'");
+			});
+
+			it("does not invoke the state change handler", function () {
+				expect(handler.called, "state change").to.be.false;
 			});
 		});
 	});
