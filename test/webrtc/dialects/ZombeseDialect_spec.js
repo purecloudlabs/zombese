@@ -1,7 +1,8 @@
 "use strict";
 var expect = require("chai").expect;
 
-var ZombeseDialect = require("../../../lib/webrtc/dialects/ZombeseDialect");
+var ZombeseDialect    = require("../../../lib/webrtc/dialects/ZombeseDialect");
+var ZombieMediaStream = require("../../../lib/webrtc/streams/ZombieMediaStream");
 
 describe("A ZombeseDialect", function () {
 	var dialect;
@@ -22,14 +23,26 @@ describe("A ZombeseDialect", function () {
 		});
 
 		describe("creating an object URL", function () {
-			var blob;
+			describe("for a zombese object", function () {
+				var blob;
+				var stream;
 
-			before(function () {
-				blob = window.URL.createObjectURL();
+				before(function () {
+					stream = new ZombieMediaStream();
+					blob   = window.URL.createObjectURL(stream);
+				});
+
+				it("should return a blob", function () {
+					expect(blob).to.equal(stream.url());
+				});
 			});
 
-			it("should return a blob", function () {
-				expect(blob).to.equal("blob:http%3A//zombese/braaaaaiiiiiinnnssssssss");
+			describe("for a non-zombese object", function () {
+				it("fails", function () {
+					expect(function () {
+						window.URL.createObjectURL({});
+					}).to.throw(/not a zombese object/i);
+				});
 			});
 		});
 	});

@@ -2,10 +2,11 @@
 var expect = require("chai").expect;
 var sinon  = require("sinon");
 
-var ZombieRTCPeerConnection      = require("../../lib/webrtc/ZombieRTCPeerConnection");
-var ZombieRTCSessionDescription  = require("../../lib/webrtc/ZombieRTCSessionDescription");
 var ZombieMediaStreamEvent       = require("../../lib/webrtc/events/ZombieMediaStreamEvent");
 var ZombiePeerConnectionIceEvent = require("../../lib/webrtc/events/ZombieRTCPeerConnectionIceEvent");
+var ZombieRemoteStream           = require("../../lib/webrtc/streams/ZombieRemoteStream");
+var ZombieRTCPeerConnection      = require("../../lib/webrtc/ZombieRTCPeerConnection");
+var ZombieRTCSessionDescription  = require("../../lib/webrtc/ZombieRTCSessionDescription");
 
 describe("A ZombieRTCPeerConnection", function () {
 	var connection;
@@ -185,25 +186,65 @@ describe("A ZombieRTCPeerConnection", function () {
 	});
 
 	describe("setting remote description", function () {
-		var description = "description";
-		var success     = sinon.spy();
+		describe("with an 'onaddstream' handler", function () {
+			var description = "description";
+			var handler     = sinon.spy();
+			var success     = sinon.spy();
 
-		before(function (done) {
-			connection.setRemoteDescription(description, success);
-			expect(success.called, "synchronous").to.be.false;
-			process.nextTick(done);
+			before(function (done) {
+				connection.onaddstream = handler;
+				connection.setRemoteDescription(description, success);
+				expect(success.called, "synchronous callback").to.be.false;
+				expect(handler.called, "synchronous handler").to.be.false;
+				process.nextTick(done);
+			});
+
+			after(function () {
+				connection.onaddstream = null;
+				delete connection.remoteDescription;
+			});
+
+			it("sets the description", function () {
+				expect(connection.remoteDescription).to.equal(description);
+			});
+
+			it("invokes the success callback", function () {
+				expect(success.calledOnce).to.be.true;
+			});
+
+			// Need to simulate receiving the remote media stream. Setting the
+			// remote description is the closest trigger to when this should happen.
+			it("receives a remote media stream", function () {
+				expect(handler.calledOnce, "stream event").to.be.true;
+
+				expect(handler.firstCall.args[0], "stream")
+				.to.be.an.instanceOf(ZombieMediaStreamEvent)
+				.and.to.have.property("stream")
+				.that.is.an.instanceOf(ZombieRemoteStream);
+			});
 		});
 
-		after(function () {
-			delete connection.remoteDescription;
-		});
+		describe("without an 'onaddstream' handler", function () {
+			var description = "description";
+			var success     = sinon.spy();
 
-		it("sets the description", function () {
-			expect(connection.remoteDescription).to.equal(description);
-		});
+			before(function (done) {
+				connection.setRemoteDescription(description, success);
+				expect(success.called, "synchronous callback").to.be.false;
+				process.nextTick(done);
+			});
 
-		it("invokes the success callback", function () {
-			expect(success.calledOnce).to.be.true;
+			after(function () {
+				delete connection.remoteDescription;
+			});
+
+			it("sets the description", function () {
+				expect(connection.remoteDescription).to.equal(description);
+			});
+
+			it("invokes the success callback", function () {
+				expect(success.calledOnce).to.be.true;
+			});
 		});
 	});
 
@@ -266,11 +307,9 @@ describe("A ZombieRTCPeerConnection", function () {
 				delete connection.onaddstream;
 			});
 
-			it("invokes the onaddstream handler", function () {
-				expect(onaddstream.calledOnce).to.be.true;
-				expect(onaddstream.calledWith(
-					sinon.match.instanceOf(ZombieMediaStreamEvent)
-				)).to.be.true;
+			// The 'addstream' event refers to receiving a remote stream.
+			it("does not invoke the onaddstream handler", function () {
+				expect(onaddstream.called).to.be.false;
 			});
 		});
 
