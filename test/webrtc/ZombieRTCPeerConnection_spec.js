@@ -61,6 +61,7 @@ describe("A ZombieRTCPeerConnection", function () {
 				before(function (done) {
 					connection.oniceconnectionstatechange = handler = sinon.spy();
 					connection.iceConnectionState         = "connected";
+					expect(handler.called, "synchronous").to.be.false;
 					// Give async handlers a chance to run.
 					process.nextTick(done);
 				});
@@ -114,8 +115,10 @@ describe("A ZombieRTCPeerConnection", function () {
 	describe("creating an answer", function () {
 		var success = sinon.spy();
 
-		before(function () {
+		before(function (done) {
 			connection.createAnswer(success);
+			expect(success.called, "synchronous").to.be.false;
+			process.nextTick(done);
 		});
 
 		it("invokes the success callback with the answer", function () {
@@ -129,8 +132,10 @@ describe("A ZombieRTCPeerConnection", function () {
 	describe("creating an offer", function () {
 		var success = sinon.spy();
 
-		before(function () {
+		before(function (done) {
 			connection.createOffer(success);
+			expect(success.called, "synchronous").to.be.false;
+			process.nextTick(done);
 		});
 
 		it("invokes the success callback with the offer", function () {
@@ -142,8 +147,9 @@ describe("A ZombieRTCPeerConnection", function () {
 	});
 
 	describe("being closed", function () {
-		before(function () {
+		before(function (done) {
 			connection.close();
+			process.nextTick(done);
 		});
 
 		after(function () {
@@ -157,10 +163,12 @@ describe("A ZombieRTCPeerConnection", function () {
 
 	describe("setting local description", function () {
 		var description = "description";
-		var success = sinon.spy();
+		var success     = sinon.spy();
 
-		before(function () {
+		before(function (done) {
 			connection.setLocalDescription(description, success);
+			expect(success.called, "synchronous").to.be.false;
+			process.nextTick(done);
 		});
 
 		after(function () {
@@ -178,10 +186,12 @@ describe("A ZombieRTCPeerConnection", function () {
 
 	describe("setting remote description", function () {
 		var description = "description";
-		var success = sinon.spy();
+		var success     = sinon.spy();
 
-		before(function () {
+		before(function (done) {
 			connection.setRemoteDescription(description, success);
+			expect(success.called, "synchronous").to.be.false;
+			process.nextTick(done);
 		});
 
 		after(function () {
@@ -200,11 +210,14 @@ describe("A ZombieRTCPeerConnection", function () {
 	describe("adding an ice candidate", function () {
 		describe("with an onicecandidate handler", function () {
 			var onicecandidate = sinon.spy();
-			var success = sinon.spy();
+			var success        = sinon.spy();
 
-			before(function () {
+			before(function (done) {
 				connection.onicecandidate = onicecandidate;
 				connection.addIceCandidate("candidate", success);
+				expect(success.called, "synchronous callback").to.be.false;
+				expect(onicecandidate.called, "synchronous handler").to.be.false;
+				process.nextTick(done);
 			});
 
 			after(function () {
@@ -226,8 +239,10 @@ describe("A ZombieRTCPeerConnection", function () {
 		describe("without an onicecandidate handler", function () {
 			var success = sinon.spy();
 
-			before(function () {
+			before(function (done) {
 				connection.addIceCandidate("candidate", success);
+				expect(success.called, "synchronous").to.be.false;
+				process.nextTick(done);
 			});
 
 			it("invokes the success callback", function () {
@@ -238,11 +253,13 @@ describe("A ZombieRTCPeerConnection", function () {
 
 	describe("adding a stream", function () {
 		describe("with an onaddstream handler", function () {
-			var onaddstream            = sinon.spy();
+			var onaddstream = sinon.spy();
 
-			before(function () {
+			before(function (done) {
 				connection.onaddstream = onaddstream;
 				connection.addStream("stream");
+				expect(onaddstream.called, "synchronous").to.be.false;
+				process.nextTick(done);
 			});
 
 			after(function () {
