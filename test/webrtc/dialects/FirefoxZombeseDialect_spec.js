@@ -3,12 +3,12 @@ var expect = require("chai").expect;
 var sinon  = require("sinon");
 
 var FirefoxZombeseDialect       = require("../../../lib/webrtc/dialects/FirefoxZombeseDialect");
+var ZombieLocalStream           = require("../../../lib/webrtc/streams/ZombieLocalStream");
 var ZombieRTCPeerConnection     = require("../../../lib/webrtc/ZombieRTCPeerConnection");
 var ZombieRTCIceCandidate       = require("../../../lib/webrtc/ZombieRTCIceCandidate");
 var ZombieRTCSessionDescription = require("../../../lib/webrtc/ZombieRTCSessionDescription");
-var ZombieMediaStream           = require("../../../lib/webrtc/ZombieMediaStream");
 
-describe("A FirefoxZombeseDialect", function () {
+describe("A Firefox dialect", function () {
 	var dialect;
 
 	before(function () {
@@ -40,16 +40,18 @@ describe("A FirefoxZombeseDialect", function () {
 			expect(window.navigator.mozGetUserMedia).to.be.a("function");
 		});
 
-		describe("mozGetUserMedia", function () {
+		describe("getting the local media stream", function () {
 			var success = sinon.spy();
 
-			before(function () {
+			before(function (done) {
 				window.navigator.mozGetUserMedia({}, success);
+				expect(success.called, "synchronous").to.be.false;
+				process.nextTick(done);
 			});
 
 			it("calls the success callback with the media event", function () {
 				expect(success.calledOnce).to.be.true;
-				expect(success.calledWith(sinon.match.instanceOf(ZombieMediaStream))).to.be.true;
+				expect(success.calledWith(sinon.match.instanceOf(ZombieLocalStream))).to.be.true;
 			});
 		});
 	});
