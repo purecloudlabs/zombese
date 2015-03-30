@@ -4,6 +4,7 @@ var sinon  = require("sinon");
 
 var FirefoxZombeseDialect       = require("../../../lib/webrtc/dialects/FirefoxZombeseDialect");
 var ZombieLocalStream           = require("../../../lib/webrtc/streams/ZombieLocalStream");
+var ZombieMediaStreamTrack      = require("../../../lib/webrtc/streams/ZombieMediaStreamTrack");
 var ZombieRTCPeerConnection     = require("../../../lib/webrtc/ZombieRTCPeerConnection");
 var ZombieRTCIceCandidate       = require("../../../lib/webrtc/ZombieRTCIceCandidate");
 var ZombieRTCSessionDescription = require("../../../lib/webrtc/ZombieRTCSessionDescription");
@@ -38,6 +39,10 @@ describe("A Firefox dialect", function () {
 
 		it("creates mozGetUserMedia", function () {
 			expect(window.navigator.mozGetUserMedia).to.be.a("function");
+		});
+
+		it("creates MediaStreamTrack", function () {
+			expect(window.MediaStreamTrack).to.equal(ZombieMediaStreamTrack);
 		});
 
 		describe("getting the local media stream", function () {
