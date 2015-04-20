@@ -3,7 +3,7 @@ var zombese   = require("..");
 var expect    = require("chai").expect;
 var Browser   = require("zombie");
 var utilities = require("./helpers/utilities");
-var sinon     = require("sinon");
+var Sinon     = require("sinon");
 
 var FirefoxZombeseDialect = require("../lib/webrtc/dialects/FirefoxZombeseDialect");
 
@@ -21,16 +21,18 @@ describe("zombese", function () {
 	});
 
 	describe("specifying the dialect to use", function () {
-		var browser;
-		var window;
 		var dialect = new zombese.dialects.Firefox();
+
+		var browser;
 		var teach;
+		var window;
 
 		before(function () {
-			teach = sinon.stub(dialect, "teach");
+			teach = Sinon.stub(dialect, "teach");
 			Browser.extend(zombese(dialect));
+
 			browser = new Browser();
-			window = browser.open({ name : "foo" });
+			window  = browser.open({ name : "foo" });
 		});
 
 		after(function () {
@@ -40,6 +42,11 @@ describe("zombese", function () {
 
 		it("teaches the new window the dialect", function () {
 			expect(teach.calledOnce).to.be.true;
+		});
+
+		it("configures the browser instance", function () {
+			expect(browser.userAgent).to.equal(dialect.userAgent);
+			expect(browser.window.navigator.userAgent).to.equal(dialect.userAgent);
 		});
 	});
 
@@ -52,9 +59,8 @@ describe("zombese", function () {
 		before(function () {
 			var dialect = new zombese.dialects.Default();
 
-			teach = sinon.stub(dialect, "teach");
-
-			Default = sinon.stub(zombese.dialects, "Default");
+			teach   = Sinon.stub(dialect, "teach");
+			Default = Sinon.stub(zombese.dialects, "Default");
 			Default.returns(dialect);
 
 			Browser.extend(zombese());

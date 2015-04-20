@@ -1,12 +1,12 @@
 "use strict";
-var expect = require("chai").expect;
-var sinon  = require("sinon");
+var Sinon                           = require("sinon");
+var ZombieMediaStreamEvent          = require("../../lib/webrtc/events/ZombieMediaStreamEvent");
+var ZombieRemoteStream              = require("../../lib/webrtc/streams/ZombieRemoteStream");
+var ZombieRTCPeerConnection         = require("../../lib/webrtc/ZombieRTCPeerConnection");
+var ZombieRTCPeerConnectionIceEvent = require("../../lib/webrtc/events/ZombieRTCPeerConnectionIceEvent");
+var ZombieRTCSessionDescription     = require("../../lib/webrtc/ZombieRTCSessionDescription");
 
-var ZombieMediaStreamEvent       = require("../../lib/webrtc/events/ZombieMediaStreamEvent");
-var ZombiePeerConnectionIceEvent = require("../../lib/webrtc/events/ZombieRTCPeerConnectionIceEvent");
-var ZombieRemoteStream           = require("../../lib/webrtc/streams/ZombieRemoteStream");
-var ZombieRTCPeerConnection      = require("../../lib/webrtc/ZombieRTCPeerConnection");
-var ZombieRTCSessionDescription  = require("../../lib/webrtc/ZombieRTCSessionDescription");
+var expect = require("chai").expect;
 
 describe("A ZombieRTCPeerConnection", function () {
 	var connection;
@@ -41,7 +41,7 @@ describe("A ZombieRTCPeerConnection", function () {
 				var handler;
 
 				before(function (done) {
-					connection.oniceconnectionstatechange = handler = sinon.spy();
+					connection.oniceconnectionstatechange = handler = Sinon.spy();
 					connection.iceConnectionState         = "new";
 					// Give async handlers a chance to run.
 					process.nextTick(done);
@@ -60,7 +60,7 @@ describe("A ZombieRTCPeerConnection", function () {
 				var handler;
 
 				before(function (done) {
-					connection.oniceconnectionstatechange = handler = sinon.spy();
+					connection.oniceconnectionstatechange = handler = Sinon.spy();
 					connection.iceConnectionState         = "connected";
 					expect(handler.called, "synchronous").to.be.false;
 					// Give async handlers a chance to run.
@@ -85,7 +85,7 @@ describe("A ZombieRTCPeerConnection", function () {
 			var handler;
 
 			before(function (done) {
-				connection.oniceconnectionstatechange = handler = sinon.spy();
+				connection.oniceconnectionstatechange = handler = Sinon.spy();
 
 				try {
 					connection.iceConnectionState = state;
@@ -114,7 +114,7 @@ describe("A ZombieRTCPeerConnection", function () {
 	});
 
 	describe("creating an answer", function () {
-		var success = sinon.spy();
+		var success = Sinon.spy();
 
 		before(function (done) {
 			connection.createAnswer(success);
@@ -125,25 +125,59 @@ describe("A ZombieRTCPeerConnection", function () {
 		it("invokes the success callback with the answer", function () {
 			expect(success.calledOnce).to.be.true;
 			expect(success.calledWith(
-				sinon.match.instanceOf(ZombieRTCSessionDescription)
+				Sinon.match.instanceOf(ZombieRTCSessionDescription)
 			)).to.be.true;
 		});
 	});
 
 	describe("creating an offer", function () {
-		var success = sinon.spy();
+		describe("with an ICE candidate handler", function () {
+			var ice     = Sinon.spy();
+			var success = Sinon.spy();
 
-		before(function (done) {
-			connection.createOffer(success);
-			expect(success.called, "synchronous").to.be.false;
-			process.nextTick(done);
+			before(function (done) {
+				connection.onicecandidate = ice;
+				connection.createOffer(success);
+				expect(success.called, "synchronous").to.be.false;
+				process.nextTick(done);
+			});
+
+			after(function () {
+				delete connection.onicecandidate;
+			});
+
+			it("invokes the success callback with the offer", function () {
+				expect(success.calledOnce).to.be.true;
+				expect(success.calledWith(
+					Sinon.match.instanceOf(ZombieRTCSessionDescription)
+				)).to.be.true;
+			});
+
+			it("signals when ICE gathering has completed", function () {
+				expect(ice.called, "ICE event").to.be.true;
+				expect(ice.firstCall.args[0], "ICE candidate")
+				.to.be.an.instanceOf(ZombieRTCPeerConnectionIceEvent)
+				.and.to.have.property("candidate").that.is.null;
+
+				Sinon.assert.callOrder(success, ice);
+			});
 		});
 
-		it("invokes the success callback with the offer", function () {
-			expect(success.calledOnce).to.be.true;
-			expect(success.calledWith(
-				sinon.match.instanceOf(ZombieRTCSessionDescription)
-			)).to.be.true;
+		describe("without an ICE candidate handler", function () {
+			var success = Sinon.spy();
+
+			before(function (done) {
+				connection.createOffer(success);
+				expect(success.called, "synchronous").to.be.false;
+				process.nextTick(done);
+			});
+
+			it("invokes the success callback with the offer", function () {
+				expect(success.calledOnce).to.be.true;
+				expect(success.calledWith(
+					Sinon.match.instanceOf(ZombieRTCSessionDescription)
+				)).to.be.true;
+			});
 		});
 	});
 
@@ -164,7 +198,7 @@ describe("A ZombieRTCPeerConnection", function () {
 
 	describe("setting local description", function () {
 		var description = "description";
-		var success     = sinon.spy();
+		var success     = Sinon.spy();
 
 		before(function (done) {
 			connection.setLocalDescription(description, success);
@@ -187,9 +221,10 @@ describe("A ZombieRTCPeerConnection", function () {
 
 	describe("setting remote description", function () {
 		describe("with an 'onaddstream' handler", function () {
+			var connection  = new ZombieRTCPeerConnection();
 			var description = "description";
-			var handler     = sinon.spy();
-			var success     = sinon.spy();
+			var handler     = Sinon.spy();
+			var success     = Sinon.spy();
 
 			before(function (done) {
 				connection.onaddstream = handler;
@@ -197,11 +232,6 @@ describe("A ZombieRTCPeerConnection", function () {
 				expect(success.called, "synchronous callback").to.be.false;
 				expect(handler.called, "synchronous handler").to.be.false;
 				process.nextTick(done);
-			});
-
-			after(function () {
-				connection.onaddstream = null;
-				delete connection.remoteDescription;
 			});
 
 			it("sets the description", function () {
@@ -222,11 +252,16 @@ describe("A ZombieRTCPeerConnection", function () {
 				.and.to.have.property("stream")
 				.that.is.an.instanceOf(ZombieRemoteStream);
 			});
+
+			it("saves a reference to the media stream", function () {
+				expect(connection.getRemoteStreams()).to.deep.equal([ handler.firstCall.args[0].stream ]);
+			});
 		});
 
 		describe("without an 'onaddstream' handler", function () {
+			var connection  = new ZombieRTCPeerConnection();
 			var description = "description";
-			var success     = sinon.spy();
+			var success     = Sinon.spy();
 
 			before(function (done) {
 				connection.setRemoteDescription(description, success);
@@ -245,56 +280,42 @@ describe("A ZombieRTCPeerConnection", function () {
 			it("invokes the success callback", function () {
 				expect(success.calledOnce).to.be.true;
 			});
+
+			it("receives at least on media stream", function () {
+				expect(connection.getRemoteStreams()).to.have.length.greaterThan(0);
+				expect(connection.getRemoteStreams()[0]).to.be.an.instanceOf(ZombieRemoteStream);
+			});
 		});
 	});
 
 	describe("adding an ice candidate", function () {
-		describe("with an onicecandidate handler", function () {
-			var onicecandidate = sinon.spy();
-			var success        = sinon.spy();
+		var success = Sinon.spy();
 
-			before(function (done) {
-				connection.onicecandidate = onicecandidate;
-				connection.addIceCandidate("candidate", success);
-				expect(success.called, "synchronous callback").to.be.false;
-				expect(onicecandidate.called, "synchronous handler").to.be.false;
-				process.nextTick(done);
-			});
-
-			after(function () {
-				delete connection.onicecandidate;
-			});
-
-			it("invokes the onicecandidate handler", function () {
-				expect(onicecandidate.calledOnce).to.be.true;
-				expect(onicecandidate.calledWith(
-					sinon.match.instanceOf(ZombiePeerConnectionIceEvent)
-				)).to.be.true;
-			});
-
-			it("invokes the success callback", function () {
-				expect(success.calledOnce).to.be.true;
-			});
+		before(function (done) {
+			connection.onicecandidate = Sinon.spy();
+			connection.addIceCandidate("candidate", success);
+			expect(success.called, "synchronous").to.be.false;
+			process.nextTick(done);
 		});
 
-		describe("without an onicecandidate handler", function () {
-			var success = sinon.spy();
+		after(function () {
+			delete connection.onicecandidate;
+		});
 
-			before(function (done) {
-				connection.addIceCandidate("candidate", success);
-				expect(success.called, "synchronous").to.be.false;
-				process.nextTick(done);
-			});
+		it("invokes the success callback", function () {
+			expect(success.calledOnce).to.be.true;
+		});
 
-			it("invokes the success callback", function () {
-				expect(success.calledOnce).to.be.true;
-			});
+		// 'onicecandidate' is for receiving local candidates while 'addIceCandidate'
+		// is for processing remote candidates.
+		it("does not invoke the 'onicecandidate' handler", function () {
+			expect(connection.onicecandidate.called).to.be.false;
 		});
 	});
 
 	describe("adding a stream", function () {
 		describe("with an onaddstream handler", function () {
-			var onaddstream = sinon.spy();
+			var onaddstream = Sinon.spy();
 
 			before(function (done) {
 				connection.onaddstream = onaddstream;

@@ -4,6 +4,7 @@
   "description": "WebRTC browser extension for Zombie.js.",
   "main": "lib/zombese",
   "scripts": {
+    "pretest": "bower install",
     "test": "gulp"
   },
   "repository": {
@@ -23,6 +24,7 @@
   "homepage": "https://github.com/inetCatapult/zombese",
   "devDependencies": {
     "bluebird": "^2.9.24",
+    "bower": "^1.4.1",
     "chai": "^1.9.2",
     "gulp": "^3.8.6",
     "gulp-istanbul": "^0.3.1",
@@ -31,6 +33,7 @@
     "gulp-jshint": "^1.8.0",
     "gulp-mocha": "^1.1.1",
     "jshint-stylish": "^0.4.0",
+    "nock": "^1.6.0",
     "sinon": "^1.10.3",
     "stream-consume": "^0.1.0",
     "zombie": "^3.1.1"

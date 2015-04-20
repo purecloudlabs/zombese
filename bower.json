@@ -1,0 +1,7 @@
+{
+  "name": "zombese",
+  "devDependencies": {
+    "kurento-utils": "~5.1.0",
+    "adapter.js": "*"
+  }
+}
