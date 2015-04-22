@@ -1,19 +1,25 @@
 "use strict";
-var expect = require("chai").expect;
-var sinon  = require("sinon");
-
 var FirefoxZombeseDialect       = require("../../../lib/webrtc/dialects/FirefoxZombeseDialect");
+var Sinon                       = require("sinon");
 var ZombieLocalStream           = require("../../../lib/webrtc/streams/ZombieLocalStream");
 var ZombieMediaStreamTrack      = require("../../../lib/webrtc/streams/ZombieMediaStreamTrack");
 var ZombieRTCPeerConnection     = require("../../../lib/webrtc/ZombieRTCPeerConnection");
 var ZombieRTCIceCandidate       = require("../../../lib/webrtc/ZombieRTCIceCandidate");
 var ZombieRTCSessionDescription = require("../../../lib/webrtc/ZombieRTCSessionDescription");
 
-describe("A Firefox dialect", function () {
+var expect = require("chai").expect;
+
+describe("The Firefox dialect", function () {
 	var dialect;
 
 	before(function () {
 		dialect = new FirefoxZombeseDialect();
+	});
+
+	it("specifies a user agent", function () {
+		expect(dialect.userAgent).to.equal(
+			"Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:36.0) Gecko/20100101 Firefox/36.0"
+		);
 	});
 
 	describe("teaching a window", function () {
@@ -46,7 +52,7 @@ describe("A Firefox dialect", function () {
 		});
 
 		describe("getting the local media stream", function () {
-			var success = sinon.spy();
+			var success = Sinon.spy();
 
 			before(function (done) {
 				window.navigator.mozGetUserMedia({}, success);
@@ -56,7 +62,7 @@ describe("A Firefox dialect", function () {
 
 			it("calls the success callback with the media event", function () {
 				expect(success.calledOnce).to.be.true;
-				expect(success.calledWith(sinon.match.instanceOf(ZombieLocalStream))).to.be.true;
+				expect(success.calledWith(Sinon.match.instanceOf(ZombieLocalStream))).to.be.true;
 			});
 		});
 	});

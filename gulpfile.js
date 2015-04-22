@@ -1,15 +1,17 @@
 "use strict";
-var FS       = require("fs");
+var Bluebird = require("bluebird");
+var Enforcer = require("gulp-istanbul-enforcer");
+var Fs       = require("fs");
 var Gulp     = require("gulp");
-var Path     = require("path");
-var Q        = require("q");
-var _        = require("lodash");
-var Jshint   = require("gulp-jshint");
-var Stylish  = require("jshint-stylish");
-var istanbul = require("gulp-istanbul");
-var mocha    = require("gulp-mocha");
+var Istanbul = require("gulp-istanbul");
 var Jscs     = require("gulp-jscs");
-var enforcer = require("gulp-istanbul-enforcer");
+var Jshint   = require("gulp-jshint");
+var Mocha    = require("gulp-mocha");
+var Path     = require("path");
+var Stylish  = require("jshint-stylish");
+
+var consume = require("stream-consume");
+var _       = require("lodash");
 
 var paths = {
 	jscs : Path.join(__dirname, ".jscsrc"),
@@ -42,19 +44,21 @@ function style (options, files) {
 }
 
 function loadOptions (path) {
-	return Q.ninvoke(FS, "readFile", path, { encoding : "utf8" })
+	return Bluebird.fromNode(function (callback) {
+		Fs.readFile(path, { encoding : "utf8" }, callback);
+	})
 	.then(function (contents) {
 		return JSON.parse(contents);
 	});
 }
 
 function promisefy (stream) {
-	var deferred = Q.defer();
-
-	stream.once("finish", deferred.resolve.bind(deferred));
-	stream.once("error", deferred.reject.bind(deferred));
-
-	return deferred.promise;
+	var promise = new Bluebird(function (resolve, reject) {
+		stream.once("finish", resolve);
+		stream.once("error", reject);
+	});
+	consume(stream);
+	return promise;
 }
 
 Gulp.task("lint", [ "lint-source", "lint-test" ]);
@@ -67,10 +71,10 @@ Gulp.task("lint-source", function () {
 });
 
 Gulp.task("lint-test", function () {
-	return Q.all([
+	return Bluebird.join(
 		loadOptions(paths.jshint.source),
 		loadOptions(paths.jshint.test)
-	])
+	)
 	.spread(function (source, test) {
 		var options = _.merge(source, test);
 		return promisefy(lint(options, paths.test));
@@ -87,15 +91,17 @@ Gulp.task("style", function (done) {
 });
 
 Gulp.task("test-unit", [ "lint", "style" ], function (done) {
-	Gulp.src(paths.source)
-	.pipe(istanbul())
+	var stream = Gulp.src(paths.source)
+	.pipe(new Istanbul())
 	.on("finish", function () {
-		Gulp.src(paths.test)
-		.pipe(mocha())
-		.pipe(istanbul.writeReports())
+		var stream = Gulp.src(paths.test)
+		.pipe(new Mocha())
+		.pipe(Istanbul.writeReports())
 		.on("end", done)
 		.on("error", done);
+		consume(stream);
 	});
+	consume(stream);
 });
 
 Gulp.task("coverage", [ "test-unit" ], function () {
@@ -113,7 +119,7 @@ Gulp.task("coverage", [ "test-unit" ], function () {
 	};
 
 	return Gulp.src(".")
-	.pipe(enforcer(options));
+	.pipe(new Enforcer(options));
 });
 
 Gulp.task("test", [ "test-unit", "coverage" ]);
