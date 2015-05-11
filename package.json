@@ -33,16 +33,16 @@
     "gulp-jshint": "^1.8.0",
     "gulp-mocha": "^1.1.1",
     "jshint-stylish": "^0.4.0",
-    "nock": "^1.6.0",
+    "nock": "^2.0.1",
     "sinon": "^1.10.3",
     "stream-consume": "^0.1.0",
-    "zombie": "^3.1.1"
+    "zombie": "^4.0.10"
   },
   "dependencies": {
     "lodash": "^2.4.1",
     "node-uuid": "^1.4.1"
   },
   "peerDependencies": {
-    "zombie": "^3.1.1"
+    "zombie": "^4.0.10"
   }
 }
