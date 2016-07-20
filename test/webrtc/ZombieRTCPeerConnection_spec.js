@@ -342,4 +342,17 @@ describe("A ZombieRTCPeerConnection", function () {
 			});
 		});
 	});
+
+  describe("listing local streams", function () {
+    it("should default to an empty list", function () {
+		  var newConnection = new ZombieRTCPeerConnection();
+      expect(newConnection.getLocalStreams()).to.deep.equal([]);
+    });
+    
+    it("should include streams added with addStream", function () {
+		  var newConnection = new ZombieRTCPeerConnection();
+      newConnection.addStream("stream");
+      expect(newConnection.getLocalStreams()).to.deep.equal(["stream"]);
+    });
+  });
 });
