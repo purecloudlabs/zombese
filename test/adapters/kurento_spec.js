@@ -13,7 +13,7 @@ describe("The Kurento Utils adapter", function () {
 
 	before(function () {
 		var page     = Path.join(__dirname, "fixtures", "kurento.html");
-		var polyfill = Path.join(__dirname, "..", "bower_components", "adapter.js", "adapter.js");
+		var polyfill = Path.join(__dirname, "..", "bower_components", "adapter.js", "adapter-0.2.10.js");
 		var scope    = new Nock("http://localhost").persist();
 		var script   = Path.join(__dirname, "..", "bower_components", "kurento-utils", "js", "kurento-utils.js");
 
