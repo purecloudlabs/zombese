@@ -2,6 +2,12 @@ zombese [![Build Status](https://travis-ci.org/bandwidthcom/zombese.svg?branch=m
 =======
 Part of [Bandwidth Open Source](http://bandwidth.com/?utm_medium=social&utm_source=github&utm_campaign=dtolb&utm_content=_)
 
+![Warning](https://upload.wikimedia.org/wikipedia/commons/a/ab/Warning_icon.png)
+This branch only exists has a temporary copy of upstream's master with all
+pending PRs merged. As upstream PRs are merged, this branch will be rebased on
+upstream master.
+![Warning](https://upload.wikimedia.org/wikipedia/commons/a/ab/Warning_icon.png)
+
 A WebRTC extension for [Zombie.js](https://github.com/assaf/zombie).
 
 Zombese is only intended to cover the happy path for setting up a WebRTC connection between two clients running in ```Zombie.js```. Because of this, only orchestration-related parts of the WebRTC API are implemented. Things like the ```MediaStream``` API are not implemented.
