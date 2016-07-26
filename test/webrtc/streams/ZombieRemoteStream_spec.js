@@ -14,6 +14,21 @@ describe("A zombese remote media stream", function () {
 		expect(stream, "stream").to.be.an.instanceOf(ZombieMediaStream);
 	});
 
+	it("has an empty audio track list", function () {
+		var audioTracks = stream.getAudioTracks();
+		expect(audioTracks, "audio tracks").to.deep.equal([]);
+	});
+
+	it("has an empty video track list", function () {
+		var videoTracks = stream.getVideoTracks();
+		expect(videoTracks, "video tracks").to.deep.equal([]);
+	});
+
+	it("has an empty track list", function () {
+		var tracks = stream.getTracks();
+		expect(tracks, "tracks").to.deep.equal([]);
+	});
+
 	describe("rendered as a string", function () {
 		var url;
 
