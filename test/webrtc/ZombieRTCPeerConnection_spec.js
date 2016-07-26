@@ -225,10 +225,11 @@ describe("A ZombieRTCPeerConnection", function () {
 			var description = "description";
 			var handler     = Sinon.spy();
 			var success     = Sinon.spy();
+			var result      = null;
 
 			before(function (done) {
 				connection.onaddstream = handler;
-				connection.setRemoteDescription(description, success);
+				result = connection.setRemoteDescription(description, success);
 				expect(success.called, "synchronous callback").to.be.false;
 				expect(handler.called, "synchronous handler").to.be.false;
 				process.nextTick(done);
@@ -236,6 +237,14 @@ describe("A ZombieRTCPeerConnection", function () {
 
 			it("sets the description", function () {
 				expect(connection.remoteDescription).to.equal(description);
+			});
+
+			it("returns a Promise that resolves", function () {
+				return result
+					.then(function () {
+						// This is hear to make sure a 'thenable' is returned
+						return;
+					});
 			});
 
 			it("invokes the success callback", function () {
@@ -262,9 +271,10 @@ describe("A ZombieRTCPeerConnection", function () {
 			var connection  = new ZombieRTCPeerConnection();
 			var description = "description";
 			var success     = Sinon.spy();
+			var result      = null;
 
 			before(function (done) {
-				connection.setRemoteDescription(description, success);
+				result = connection.setRemoteDescription(description, success);
 				expect(success.called, "synchronous callback").to.be.false;
 				process.nextTick(done);
 			});
@@ -275,6 +285,14 @@ describe("A ZombieRTCPeerConnection", function () {
 
 			it("sets the description", function () {
 				expect(connection.remoteDescription).to.equal(description);
+			});
+
+			it("returns a Promise that resolves", function () {
+				return result
+					.then(function () {
+						// This is hear to make sure a 'thenable' is returned
+						return;
+					});
 			});
 
 			it("invokes the success callback", function () {
