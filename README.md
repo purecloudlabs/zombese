@@ -1,5 +1,6 @@
-zombese [![Build Status](https://travis-ci.org/inetCatapult/zombese.svg?branch=master)](https://travis-ci.org/inetCatapult/zombese)
+zombese [![Build Status](https://travis-ci.org/bandwidthcom/zombese.svg?branch=master)](https://travis-ci.org/bandwidthcom/zombese)
 =======
+Part of [Bandwidth Open Source](http://bandwidth.com/?utm_medium=social&utm_source=github&utm_campaign=dtolb&utm_content=_)
 
 A WebRTC extension for [Zombie.js](https://github.com/assaf/zombie).
 
@@ -53,4 +54,4 @@ The `zombese` function has the following parameters:
   - default: ```zombese.dialects.default```
 
 ## License
-[MIT License](https://github.com/inetCatapult/zombese/blob/master/LICENSE)
+[MIT License](/LICENSE)
