@@ -28,23 +28,23 @@ objects to be augmented with additional functionality. Using this approach,
 
 Without a dialect:
 
-```
-	var Browser = require("zombie");
-	var zombese = require("zombese");
-	var browser;
-	
-	Browser.extend(zombese());  // uses the default dialect
-	browser = new Browser();
+```javascript
+var Browser = require("zombie");
+var zombese = require("zombese");
+var browser;
+
+Browser.extend(zombese());  // uses the default dialect
+browser = new Browser();
 ```
 
 With a dialect:
-```
-	var Browser = require("zombie");
-	var zombese = require("zombese");
-	var browser;
+```javascript
+var Browser = require("zombie");
+var zombese = require("zombese");
+var browser;
 	
-	Browser.extend(zombese(zombese.dialects.firefox));  // uses the firefox dialect
-	browser = new Browser();
+Browser.extend(zombese(zombese.dialects.firefox));  // uses the firefox dialect
+browser = new Browser();
 ```
 
 The `zombese` function has the following parameters:
