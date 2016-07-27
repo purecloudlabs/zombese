@@ -6,7 +6,7 @@ deploy:
   email: incubator@bandwidth.com
   on:
     tags: true
-    repo: inetCatapult/zombese
+    repo: bandwidthcom/zombese
     all_branches: true
   api_key:
     secure: jmh0E94koSzS+UqA4D9mxHXg5jMGSj/Lw7BNt/JiApvQYyhDEV6pYNn1+FKsnYqQbhKr3tOFwAjFxN8290wv2xa3piU43ixQGZPXU7fNMAnKlVdqj2QFLG7yT6n8RJJ1vxFhCPmytUbD+CANjXfjLUcTH5lzu0FNPE7I+znVFyU=
