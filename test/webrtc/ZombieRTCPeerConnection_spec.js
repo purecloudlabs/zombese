@@ -344,6 +344,32 @@ describe("A ZombieRTCPeerConnection", function () {
 				expect(connection.getRemoteStreams()[0]).to.be.an.instanceOf(ZombieRemoteStream);
 			});
 		});
+
+		describe("without a success callback", function () {
+			var connection  = new ZombieRTCPeerConnection();
+			var description = "description";
+			var result      = null;
+
+			before(function () {
+				result = connection.setRemoteDescription(description);
+			});
+
+			after(function () {
+				delete connection.remoteDescription;
+			});
+
+			it("sets the description", function () {
+				expect(connection.remoteDescription).to.equal(description);
+			});
+
+			it("returns a Promise that resolves", function () {
+				return result
+					.then(function () {
+						// This is hear to make sure a 'thenable' is returned
+						return;
+					});
+			});
+		});
 	});
 
 	describe("adding an ice candidate", function () {
