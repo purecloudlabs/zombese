@@ -238,24 +238,60 @@ describe("A ZombieRTCPeerConnection", function () {
 
 	describe("setting local description", function () {
 		var description = "description";
-		var success     = Sinon.spy();
+		var result      = null;
 
-		before(function (done) {
-			connection.setLocalDescription(description, success);
-			expect(success.called, "synchronous").to.be.false;
-			process.nextTick(done);
+		describe("with a success callback", function () {
+			var success = Sinon.spy();
+
+			before(function (done) {
+				result = connection.setLocalDescription(description, success);
+				expect(success.called, "synchronous").to.be.false;
+				process.nextTick(done);
+			});
+
+			after(function () {
+				delete connection.localDescription;
+			});
+
+
+			it("sets the description", function () {
+				expect(connection.localDescription).to.equal(description);
+			});
+
+			it("returns a promise", function () {
+				result.then(function() {
+					// The .then is used in this test to make sure that a promise is
+					// really returned and does resolve
+				});
+			});
+
+			it("invokes the success callback", function () {
+				expect(success.calledOnce).to.be.true;
+			});
+
 		});
 
-		after(function () {
-			delete connection.localDescription;
-		});
+		describe("without a success callback", function () {
+			before(function () {
+				result = connection.setLocalDescription(description);
+			});
 
-		it("sets the description", function () {
-			expect(connection.localDescription).to.equal(description);
-		});
+			after(function () {
+				delete connection.localDescription;
+			});
 
-		it("invokes the success callback", function () {
-			expect(success.calledOnce).to.be.true;
+
+			it("sets the description", function () {
+				expect(connection.localDescription).to.equal(description);
+			});
+
+			it("returns a promise", function () {
+				result.then(function() {
+					// The .then is used in this test to make sure that a promise is
+					// really returned and does resolve
+				});
+			});
+
 		});
 	});
 
