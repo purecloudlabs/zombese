@@ -114,20 +114,60 @@ describe("A ZombieRTCPeerConnection", function () {
 	});
 
 	describe("creating an answer", function () {
-		var success = Sinon.spy();
+		var result = null;
 
-		before(function (done) {
-			connection.createAnswer(success);
-			expect(success.called, "synchronous").to.be.false;
-			process.nextTick(done);
+		describe("with a success callback", function () {
+			var success = Sinon.spy();
+
+			before(function (done) {
+				result = connection.createAnswer(success);
+				expect(success.called, "synchronous").to.be.false;
+				process.nextTick(done);
+			});
+
+			it("returns a promise that resolves to the answer", function () {
+				result
+					.then(function (answer) {
+						expect(answer).to.be.an.instanceOf(ZombieRTCSessionDescription);
+					});
+			});
+
+			it("invokes the success callback with the answer", function () {
+				expect(success.calledOnce).to.be.true;
+				expect(success.calledWith(
+					Sinon.match.instanceOf(ZombieRTCSessionDescription)
+				)).to.be.true;
+			});
 		});
 
-		it("invokes the success callback with the answer", function () {
-			expect(success.calledOnce).to.be.true;
-			expect(success.calledWith(
-				Sinon.match.instanceOf(ZombieRTCSessionDescription)
-			)).to.be.true;
+		describe("without a success callback", function () {
+
+			before(function () {
+				result = connection.createAnswer();
+			});
+
+			it("returns a promise that resolves to the answer", function () {
+				result
+					.then(function (answer) {
+						expect(answer).to.be.an.instanceOf(ZombieRTCSessionDescription);
+					});
+			});
 		});
+
+		describe("without a success callback and with options", function () {
+
+			before(function () {
+				result = connection.createAnswer({});
+			});
+
+			it("returns a promise that resolves to the answer", function () {
+				result
+					.then(function (answer) {
+						expect(answer).to.be.an.instanceOf(ZombieRTCSessionDescription);
+					});
+			});
+		});
+
 	});
 
 	describe("creating an offer", function () {
