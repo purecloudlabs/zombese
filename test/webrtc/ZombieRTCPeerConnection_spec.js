@@ -406,6 +406,79 @@ describe("A ZombieRTCPeerConnection", function () {
 					});
 			});
 		});
+
+    describe("will detect remote streams using the negotiator", function () {
+      var negotiator = {
+        extractRemoteStreams: Sinon.stub().returns([])
+      };
+			var connection  = new ZombieRTCPeerConnection(negotiator);
+      var description = "random description";
+			connection.setRemoteDescription(description);
+
+      Sinon.assert.calledOnce(negotiator.extractRemoteStreams);
+      Sinon.assert.calledOn(negotiator.extractRemoteStreams, negotiator);
+      Sinon.assert.calledWithExactly(negotiator.extractRemoteStreams, description);
+
+      expect(connection.getRemoteStreams()).to.deep.equal([]);
+    });
+
+		describe("when an 'onremovestream' handler is not registered", function () {
+			describe("will remove the remote streams", function () {
+				var firstStream = new ZombieRemoteStream();
+				var secondStream = new ZombieRemoteStream();
+				var extractBehavior = Sinon.stub();
+				extractBehavior
+					.onFirstCall()
+					.returns([firstStream, secondStream])
+					.onSecondCall()
+					.returns([secondStream]);
+				
+				var negotiator = {
+					extractRemoteStreams: extractBehavior
+				};
+				var connection	= new ZombieRTCPeerConnection(negotiator);
+				
+				connection.setRemoteDescription("first update");
+				connection.setRemoteDescription("second update");
+				
+				expect(connection.getRemoteStreams()).to.deep.equal([secondStream]);
+			});
+		});
+
+		describe("when an 'onremovestream' handler is registered", function () {
+			it("will emit 'onremovestream' if a remote stream disapears", function (done) {
+				var firstStream = new ZombieRemoteStream();
+				var secondStream = new ZombieRemoteStream();
+				var extractBehavior = Sinon.stub();
+				extractBehavior
+					.onFirstCall()
+					.returns([firstStream, secondStream])
+					.onSecondCall()
+					.returns([secondStream]);
+				
+				var negotiator = {
+					extractRemoteStreams: extractBehavior
+				};
+				var connection	= new ZombieRTCPeerConnection(negotiator);
+				var removeHandler = Sinon.spy();
+				connection.onremovestream = removeHandler;
+				
+				connection.setRemoteDescription("first update");
+				connection.setRemoteDescription("second update");
+				
+				// The handler is called asynchronously
+				Sinon.assert.notCalled(removeHandler);
+				
+				process.nextTick(function () {
+					Sinon.assert.calledOnce(removeHandler);
+					Sinon.assert.calledOn(removeHandler, null);
+					Sinon.assert.calledWithExactly(removeHandler, new ZombieMediaStreamEvent(firstStream));
+					
+					expect(connection.getRemoteStreams()).to.deep.equal([secondStream]);
+					done();
+				});
+			});
+		});
 	});
 
 	describe("adding an ice candidate", function () {
