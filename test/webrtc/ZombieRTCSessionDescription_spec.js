@@ -9,7 +9,7 @@ describe("A ZombieRTCSessionDescription", function () {
 		var rawSDP = "candidate";
 
 		before(function () {
-			sessionDescription = new ZombieRTCSessionDescription(rawSDP);
+			sessionDescription = new ZombieRTCSessionDescription({sdp: rawSDP});
 		});
 
 		it("sets the sdp property", function () {

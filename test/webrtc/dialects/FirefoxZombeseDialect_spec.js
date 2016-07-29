@@ -32,7 +32,8 @@ describe("The Firefox dialect", function () {
 		});
 
 		it("creates mozRTCPeerConnection", function () {
-			expect(window.mozRTCPeerConnection).to.equal(ZombieRTCPeerConnection);
+			var peerConnection = new window.mozRTCPeerConnection();
+			expect(peerConnection).to.be.an.instanceOf(ZombieRTCPeerConnection);
 		});
 
 		it("creates mozRTCSessionDescription", function () {
