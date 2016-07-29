@@ -64,6 +64,24 @@ describe("The Firefox dialect", function () {
 				expect(success.calledOnce).to.be.true;
 				expect(success.calledWith(Sinon.match.instanceOf(ZombieLocalStream))).to.be.true;
 			});
+
+			describe("when constraints are provided", function () {
+				it("will create an audio track if an audio track constraint exists", function (done) {
+					window.navigator.mozGetUserMedia({audio: true}, function (stream) {
+						expect(stream.getAudioTracks(), "audio tracks").to.have.length(1);
+						expect(stream.getVideoTracks(), "video tracks").to.have.length(0);
+						done();
+					});
+				});
+
+				it("will create an video track if an video track constraint exists", function (done) {
+					window.navigator.mozGetUserMedia({video: true}, function (stream) {
+						expect(stream.getVideoTracks(), "video tracks").to.have.length(1);
+						expect(stream.getAudioTracks(), "audio tracks").to.have.length(0);
+						done();
+					});
+				});
+			});
 		});
 	});
 });
