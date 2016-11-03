@@ -36,7 +36,7 @@
     "nock": "^2.0.1",
     "sinon": "^1.10.3",
     "stream-consume": "^0.1.0",
-    "zombie": "^4.0.10"
+    "zombie": ">=4.0.10 <6"
   },
   "dependencies": {
     "es6-promise": "^3.2.1",
@@ -44,6 +44,6 @@
     "uuid": "^3.0.0"
   },
   "peerDependencies": {
-    "zombie": "^4.0.10"
+    "zombie": ">=4.0.10 <6"
   }
 }
