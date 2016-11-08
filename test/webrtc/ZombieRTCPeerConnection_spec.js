@@ -432,15 +432,15 @@ describe("A ZombieRTCPeerConnection", function () {
 					.returns([firstStream, secondStream])
 					.onSecondCall()
 					.returns([secondStream]);
-				
+
 				var negotiator = {
 					extractRemoteStreams: extractBehavior
 				};
 				var connection	= new ZombieRTCPeerConnection(negotiator);
-				
+
 				connection.setRemoteDescription("first update");
 				connection.setRemoteDescription("second update");
-				
+
 				expect(connection.getRemoteStreams()).to.deep.equal([secondStream]);
 			});
 		});
@@ -455,25 +455,25 @@ describe("A ZombieRTCPeerConnection", function () {
 					.returns([firstStream, secondStream])
 					.onSecondCall()
 					.returns([secondStream]);
-				
+
 				var negotiator = {
 					extractRemoteStreams: extractBehavior
 				};
 				var connection	= new ZombieRTCPeerConnection(negotiator);
 				var removeHandler = Sinon.spy();
 				connection.onremovestream = removeHandler;
-				
+
 				connection.setRemoteDescription("first update");
 				connection.setRemoteDescription("second update");
-				
+
 				// The handler is called asynchronously
 				Sinon.assert.notCalled(removeHandler);
-				
+
 				process.nextTick(function () {
 					Sinon.assert.calledOnce(removeHandler);
 					Sinon.assert.calledOn(removeHandler, null);
 					Sinon.assert.calledWithExactly(removeHandler, new ZombieMediaStreamEvent(firstStream));
-					
+
 					expect(connection.getRemoteStreams()).to.deep.equal([secondStream]);
 					done();
 				});
@@ -519,6 +519,7 @@ describe("A ZombieRTCPeerConnection", function () {
 
 			after(function () {
 				delete connection.onaddstream;
+				connection._localStreams = [];
 			});
 
 			// The 'addstream' event refers to receiving a remote stream.
@@ -531,6 +532,33 @@ describe("A ZombieRTCPeerConnection", function () {
 			it("doesn't explode", function () {
 				expect(function () {
 					connection.addStream("stream");
+					connection._localStreams = [];
+				}).to.not.throw(Error);
+			});
+		});
+	});
+
+	describe("removing a stream", function () {
+		describe("with an onremovestream handler", function () {
+			// The 'onremovestream' event refers to removing a remote stream.
+			it("does not invoke the onremovestream handler", function (done) {
+				var onremovestream = Sinon.spy();
+				connection.onremovestream = onremovestream;
+				connection.removeStream("stream");
+				expect(onremovestream.called, "synchronous").to.be.false;
+				process.nextTick(done);
+				expect(onremovestream.called).to.be.false;
+				delete connection.onremovestream;
+			});
+		});
+
+		describe("without an onremovestream handler", function () {
+			it("doesn't explode", function () {
+				connection.addStream({ id: "stream" });
+				expect(connection._localStreams.length).to.equal(1);
+				expect(function () {
+					connection.removeStream({ id: "stream" });
+					expect(connection._localStreams.length).to.equal(0);
 				}).to.not.throw(Error);
 			});
 		});
@@ -541,7 +569,7 @@ describe("A ZombieRTCPeerConnection", function () {
 		  var newConnection = new ZombieRTCPeerConnection();
       expect(newConnection.getLocalStreams()).to.deep.equal([]);
     });
-    
+
     it("should include streams added with addStream", function () {
 		  var newConnection = new ZombieRTCPeerConnection();
       newConnection.addStream("stream");
