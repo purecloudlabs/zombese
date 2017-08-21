@@ -1,6 +1,6 @@
 "use strict";
 var expect            = require("chai").expect;
-var UUID              = require("node-uuid");
+var UUID              = require("uuid");
 var ZombieMediaStream = require("../../../lib/webrtc/streams/ZombieMediaStream");
 
 describe("A Zombie media stream", function () {
