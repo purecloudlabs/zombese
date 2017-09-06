@@ -34,18 +34,24 @@ describe("The Firefox dialect", function () {
 		it("creates mozRTCPeerConnection", function () {
 			var peerConnection = new window.mozRTCPeerConnection();
 			expect(peerConnection).to.be.an.instanceOf(ZombieRTCPeerConnection);
+
+			var peerConnection2 = new window.RTCPeerConnection();
+			expect(peerConnection2).to.be.an.instanceOf(ZombieRTCPeerConnection);
 		});
 
 		it("creates mozRTCSessionDescription", function () {
 			expect(window.mozRTCSessionDescription).to.equal(ZombieRTCSessionDescription);
+			expect(window.RTCSessionDescription).to.equal(ZombieRTCSessionDescription);
 		});
 
 		it("creates mozRTCIceCandidate", function () {
 			expect(window.mozRTCIceCandidate).to.equal(ZombieRTCIceCandidate);
+			expect(window.RTCIceCandidate).to.equal(ZombieRTCIceCandidate);
 		});
 
 		it("creates mozGetUserMedia", function () {
 			expect(window.navigator.mozGetUserMedia).to.be.a("function");
+			expect(window.navigator.mediaDevices.getUserMedia).to.be.a("function");
 		});
 
 		it("creates MediaStreamTrack", function () {
