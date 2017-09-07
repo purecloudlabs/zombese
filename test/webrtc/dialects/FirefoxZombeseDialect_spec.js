@@ -88,6 +88,15 @@ describe("The Firefox dialect", function () {
 						done();
 					});
 				});
+
+				it("can create media with the promise spec", function (done) {
+					window.navigator.mediaDevices.getUserMedia({}).then(function (stream) {
+						expect(stream instanceof ZombieLocalStream).to.be.true;
+						done();
+					}).catch(e => {
+						console.log("Got an error", e);
+					});
+				});
 			});
 		});
 	});
